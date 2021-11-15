@@ -10,7 +10,7 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
     {
         #region Constructor
         private readonly IConfiguration configuration;
-
+        private static PoorCode poorCode;
         public VulnerableClass(IConfiguration config)
         {
             configuration = config;
@@ -20,6 +20,9 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
             HardcodedPasswordInConfig();
             ShouldDispose();
             SqlInjection(1); //"magic number" - what is 1?
+
+            poorCode = new PoorCode();//time will start on construction
+            
         }
         #endregion
 
@@ -29,7 +32,7 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
         {
             using (var client = new WebClient())
             {
-                client.Credentials = new System.Net.NetworkCredential("UserName", "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlzCBvbmx5IGJ==", "Domain"); //vuln #2 (hardcoded password)
+                client.Credentials = new NetworkCredential("UserName", "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlzCBvbmx5IGJ==", "Domain"); //vuln #2 (hardcoded password)
             }
         }
          
@@ -37,7 +40,7 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
         {
             using (var client = new WebClient())
             {
-                client.Credentials = new System.Net.NetworkCredential("UserName", password, "Domain"); //vuln #3 (using hardcoded password in variable)
+                client.Credentials = new NetworkCredential("UserName", password, "Domain"); //vuln #3 (using hardcoded password in variable)
             }
         }
         

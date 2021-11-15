@@ -3,7 +3,7 @@ using System.Timers;
 
 namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
 {
-    public class PoorCode :IDisposable  
+    public class PoorCode   
     {
         public Timer UnDisposedTimer { get; set; }
 
@@ -22,12 +22,13 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
 
         private static void UnDisposedTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            throw new Exception("Shouldn't use Exception - will this be pciked up by SAST?");
+            throw new Exception("Shouldn't use Exception - will this be picked up by SAST?");
         }
 
-        public void Dispose()
+        internal double TimerDuration()
         {
-            //time is NOT disposed = memory leak
+            return UnDisposedTimer.Interval;
         }
+      
     }
 }
