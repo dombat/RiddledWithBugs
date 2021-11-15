@@ -5,7 +5,7 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
 {
     public class PoorCode   
     {
-        public Timer UnDisposedTimer { get; set; }
+        public System.Timers.Timer UnDisposedTimer;
 
         public int i, j, k, l = 0;//poor names - will SAST notice?
 
@@ -28,6 +28,11 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
         internal double TimerDuration()
         {
             return UnDisposedTimer.Interval;
+        }
+
+        internal void Stop()
+        {
+            UnDisposedTimer.Stop();
         }
       
     }
