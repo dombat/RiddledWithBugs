@@ -7,7 +7,7 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
     {
         public System.Timers.Timer UnDisposedTimer;
 
-        public int i, j, k, l = 0;//poor names - will SAST notice?
+        private int i, j, k, l = 0;//poor names - will SAST notice?
 
         public PoorCode()
         {
@@ -18,6 +18,7 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
 
             UnDisposedTimer.Elapsed += UnDisposedTimer_Elapsed;
             UnDisposedTimer.Start();
+            
         }
 
         private static void UnDisposedTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -34,6 +35,6 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
         {
             UnDisposedTimer.Stop();
         }
-      
+       
     }
 }

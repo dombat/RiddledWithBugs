@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.WindowsAzure.Storage.Auth;
-using System.Data.SqlClient;
-using System.Net;
-
-
-namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
+﻿namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
 {
+    using System.Data.SqlClient;
+    using System.Net;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.WindowsAzure.Storage.Auth;
+
     internal class VulnerableClass
     {
         #region Constructor
@@ -17,17 +16,15 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
 
             HardcodedPassword_1();
             HardcodedPassword_2();
-            HardcodedPasswordInConfig();
+            HardcodedPasswordInConfig("1");
             ShouldDispose();
             SqlInjection(1); //"magic number" - what is 1?
 
-            poorCode = new PoorCode();//time will start on construction
-            
         }
         #endregion
 
         public string password = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlzCBvbmx5IGJ==";//vuln #1 (when used with method HardcodedPassword_2 )
-        
+
         private static void HardcodedPassword_1()
         {
             using (var client = new WebClient())
@@ -35,7 +32,7 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
                 client.Credentials = new NetworkCredential("UserName", "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlzCBvbmx5IGJ==", "Domain"); //vuln #2 (hardcoded password)
             }
         }
-         
+
         private void HardcodedPassword_2()
         {
             using (var client = new WebClient())
@@ -43,13 +40,22 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
                 client.Credentials = new NetworkCredential("UserName", password, "Domain"); //vuln #3 (using hardcoded password in variable)
             }
         }
-        
 
-        private void HardcodedPasswordInConfig()
+
+        private void HardcodedPasswordInConfig(string thing)
         {
+            var cmd = new SqlCommand
+            {
+                CommandText = "SELECT * FROM TableA WHERE x = '" + thing + "'",
+                CommandType = System.Data.CommandType.Text
+                
+            };
+
             using (var client = new SqlConnection())
             {
                 client.ConnectionString = configuration.GetConnectionString("myDb1"); //vuln #4 (see config - contains hardcoded secrets)
+                cmd.Connection = client;
+                cmd.ExecuteScalar();
             }
         }
 
@@ -59,22 +65,24 @@ namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
             {
                 AutoReset = false
             };
-
             con.Stop();
         }
 
-        internal static void SqlInjection(int fromClient)
+        internal  void SqlInjection(int fromClient)
         {
+
             SqlDataReader reader = null;
+            var commandText = $"SELECT * FROM Table WHERE SomeColumn = '{fromClient.ToString()}';";
 
             using (var command = new SqlCommand
             {
-                CommandText = "SELECT * FROM Table WHERE SomeColumn = '" + fromClient + "'", //vuln #5 (SQLi using concatenated string) AND ToString can be overridden (CA2100 SDL rules)
-                CommandType = System.Data.CommandType.Text
+                CommandText = commandText, //vuln #5 (SQLi using concatenated string) AND ToString can be overridden (CA2100 SDL rules)
+                CommandType = System.Data.CommandType.Text,
+                Connection = new SqlConnection(),
             })
             {
-                 reader = command.ExecuteReader(); //memory leak #2?
-                
+                reader = command.ExecuteReader(); //memory leak #2?
+
                 #region Hiding bit that is not interesting
                 while (reader.Read())
                 {

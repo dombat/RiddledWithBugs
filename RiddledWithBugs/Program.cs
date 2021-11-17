@@ -17,7 +17,11 @@ namespace RiddledWithBugs
             CreateHostBuilder(args).Build().Run();
 
             var poorcode = new PoorCode();
+            var vulnerableClass = new VulnerableClass(null);
+
             Console.WriteLine(poorcode.TimerDuration());
+
+            vulnerableClass.SqlInjection(1);
 
         }
 

@@ -17,7 +17,7 @@ namespace RiddledWithBugs.Pages
             _logger = logger;
         }
 
-        public void OnGet()
+        public static void OnGet()
         {
 
         }
