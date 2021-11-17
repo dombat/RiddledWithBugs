@@ -19,7 +19,7 @@
             HardcodedPasswordInConfig("1");
             ShouldDispose();
             SqlInjection(1); //"magic number" - what is 1?
-
+             
         }
         #endregion
 
