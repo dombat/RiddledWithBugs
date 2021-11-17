@@ -1,5 +1,6 @@
 ﻿namespace MicrosoftSecurityCodeAnalysisTesting.FlawedCode
 {
+    using System.Data;
     using System.Data.SqlClient;
     using System.Net;
     using Microsoft.Extensions.Configuration;
@@ -19,7 +20,9 @@
             HardcodedPasswordInConfig("1");
             ShouldDispose();
             SqlInjection(1); //"magic number" - what is 1?
-             
+            var result = SqlTwo("2");
+
+
         }
         #endregion
 
@@ -48,7 +51,7 @@
             {
                 CommandText = "SELECT * FROM TableA WHERE x = '" + thing + "'",
                 CommandType = System.Data.CommandType.Text
-                
+
             };
 
             using (var client = new SqlConnection())
@@ -68,7 +71,7 @@
             con.Stop();
         }
 
-        internal  void SqlInjection(int fromClient)
+        internal void SqlInjection(int fromClient)
         {
 
             SqlDataReader reader = null;
@@ -89,6 +92,21 @@
                     //do something
                 }
                 #endregion
+            }
+
+        }
+
+        private static DataSet SqlTwo(string input)
+        {
+
+            using (var connection = new SqlConnection("jhghjH"))
+            {
+                var query1 = "SELECT ITEM,PRICE FROM PRODUCT WHERE ITEM_CATEGORY='"
+                  + input + "' ORDER BY PRICE";
+                var adapter = new SqlDataAdapter(query1, connection);
+                var result = new DataSet();
+                adapter.Fill(result);
+                return result;
             }
         }
 
