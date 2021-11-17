@@ -42,7 +42,7 @@
             {
                 client.Credentials = new NetworkCredential("UserName", password, "Domain"); //vuln #3 (using hardcoded password in variable)
             }
-        }
+        } 
 
 
         private void HardcodedPasswordInConfig(string thing)
